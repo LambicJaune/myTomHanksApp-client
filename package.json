@@ -12,16 +12,20 @@
   },
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel src/index.html --open",
+    "build": "parcel build src/index.html"
   },
   "dependencies": {
+    "bootstrap": "^5.3.7",
+    "prop-types": "^15.8.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "prop-types": "^15.8.1"
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.15.4"
+    "@parcel/transformer-sass": "^2.15.4",
+    "parcel": "^2.15.4"
   }
 }
