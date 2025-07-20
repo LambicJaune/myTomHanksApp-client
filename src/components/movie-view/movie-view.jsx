@@ -2,7 +2,7 @@ import "./movie-view.scss";
 
 export const MovieView = ({ movie, onBackClick }) => {
   return (
-    <div>
+    <div className="movie-view text-center">
       <div>
         <img className="w-100" src={movie.imagePath} />
       </div>
