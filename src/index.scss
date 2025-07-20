@@ -1,1 +1,23 @@
 @import '~bootstrap/scss/bootstrap.scss';
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+body {
+    background: linear-gradient(135deg,
+            #0f3d3e 0%,
+            #2c5364 50%,
+            #4ca1af 100%);
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.15em;
+    color: rgb(255, 244, 224); // Optional text color
+    min-height: 100vh; // Optional: to cover full height
+    padding: 20px; // Optional padding
+}
+
+#logo-myTomHanksApp {
+    font-size: 28px;
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-shadow: 0 8px 12px rgba(255, 244, 224, 0.6);  // Subtle shadow
+    margin-bottom: 30px;
+}

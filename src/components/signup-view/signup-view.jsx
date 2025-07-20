@@ -17,6 +17,7 @@ export const SignupView = () => {
       Email: email,
       Birthday: birthday,
     };
+console.log("Sending signup data:", data);
 
     fetch("https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users", {
       method: "POST",
