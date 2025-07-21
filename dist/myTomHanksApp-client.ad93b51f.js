@@ -16237,8 +16237,11 @@ const MainView = ()=>{
         }, undefined) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
             children: [
                 movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _colDefault.default), {
-                        className: "mb-5",
-                        md: 3,
+                        className: "mb-4",
+                        xs: 12,
+                        sm: 6,
+                        md: 4,
+                        lg: 3,
                         children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
                             movie: movie,
                             onMovieClick: (newSelectedMovie)=>setSelectedMovie(newSelectedMovie)
@@ -16250,7 +16253,7 @@ const MainView = ()=>{
                     }, movie._id, false, {
                         fileName: "src/components/main-view/main-view.jsx",
                         lineNumber: 71,
-                        columnNumber: 13
+                        columnNumber: 3
                     }, undefined)),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
                     className: "text-center my-3",
