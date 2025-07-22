@@ -6,6 +6,7 @@ import { LoginView } from "../login-view/login-view";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { NavigationBar } from "../navigation-bar/navigation-bar";
 
 export const MainView = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -13,6 +14,8 @@ export const MainView = () => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [movies, setMovies] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredMovies, setFilteredMovies] = useState([]);
 
     useEffect(() => {
         if (!token) {
@@ -32,14 +35,34 @@ export const MainView = () => {
                 }));
 
                 setMovies(moviesFromApi);
+                setFilteredMovies(moviesFromApi);
             })
             .catch((err) => {
                 console.error("Fetch error:", err);
             });
     }, [token]);
 
+    useEffect(() => {
+        if (searchTerm === "") {
+            setFilteredMovies(movies);
+        } else {
+            const filtered = movies.filter(movie =>
+                movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredMovies(filtered);
+        }
+    }, [searchTerm, movies]);
+
     return (
         <BrowserRouter>
+            <NavigationBar user={user} onLoggedOut={() => {
+                setUser(null);
+                setToken(null);
+                localStorage.clear();
+            }}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+            />
             <Row className="justify-content-md-center">
                 <Routes>
                     <Route
@@ -84,12 +107,13 @@ export const MainView = () => {
                             <>
                                 {!user ? (
                                     <Navigate to="/login" replace />
-                                ) : movies.length === 0 ? (
+                                ) : filteredMovies.length === 0 ? (
                                     <Col>The list is empty!</Col>
                                 ) : (
                                     <Col md={4}>
                                         <MovieView
-                                            movies={movies}
+                                            movies={filteredMovies}
+                                            setSearchTerm={setSearchTerm}
                                         />
                                     </Col>
                                 )}
@@ -102,13 +126,13 @@ export const MainView = () => {
                             <>
                                 {!user ? (
                                     <Navigate to="/login" replace />
-                                ) : movies.length === 0 ? (
+                                ) : filteredMovies.length === 0 ? (
                                     <Col md={6}>
                                         <div>The list is empty!</div>
                                     </Col>
                                 ) : (
                                     <>
-                                        {movies.map((movie) => (
+                                        {filteredMovies.map((movie) => (
                                             <Col className="mb-4" key={movie._id} xs={12} sm={6} md={4} lg={3}>
                                                 <MovieCard
                                                     movie={movie}

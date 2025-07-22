@@ -1,0 +1,35 @@
+
+#logo-myTomHanksApp {
+    color: inherit;
+    font-size: 26px;
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-shadow: 0 8px 12px rgba(255, 244, 224, 0.6);  // Subtle shadow
+    margin-bottom: 30px;
+}
+
+.navbar {
+  color: inherit;
+}
+
+.navbar a.nav-link,
+.navbar .navbar-brand {
+  color: inherit;
+}
+
+.navbar a.nav-link:hover {
+  color: inherit;
+  text-decoration: underline; 
+}
+
+.search-button {
+  background-color: #fff4e0 !important;
+  border: none !important;
+  color: #2c5364 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #526b75 !important;
+    color: #fff4e0 !important;
+  }
+}

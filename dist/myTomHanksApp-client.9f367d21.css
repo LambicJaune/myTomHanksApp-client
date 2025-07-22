@@ -54,6 +54,35 @@
   box-shadow: 0 8px 14px #fff4e04d;
 }
 
+#logo-myTomHanksApp {
+  color: inherit;
+  letter-spacing: .2em;
+  text-align: center;
+  text-shadow: 0 8px 12px #fff4e099;
+  margin-bottom: 30px;
+  font-size: 26px;
+}
+
+.navbar, .navbar a.nav-link, .navbar .navbar-brand {
+  color: inherit;
+}
+
+.navbar a.nav-link:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.search-button {
+  color: #2c5364 !important;
+  background-color: #fff4e0 !important;
+  border: none !important;
+}
+
+.search-button:hover, .search-button:focus {
+  color: #fff4e0 !important;
+  background-color: #526b75 !important;
+}
+
 *, :after, :before {
   box-sizing: border-box;
 }
@@ -20488,13 +20517,5 @@ body {
   min-height: 100vh;
   padding: 20px;
   font-family: Oswald, sans-serif;
-}
-
-#logo-myTomHanksApp {
-  letter-spacing: .2em;
-  text-align: center;
-  text-shadow: 0 8px 12px #fff4e099;
-  margin-bottom: 30px;
-  font-size: 28px;
 }
 /*# sourceMappingURL=myTomHanksApp-client.9f367d21.css.map */
