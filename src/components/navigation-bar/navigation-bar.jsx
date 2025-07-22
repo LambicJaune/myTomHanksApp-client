@@ -29,7 +29,7 @@ export const NavigationBar = ({ user, onLoggedOut, searchTerm, setSearchTerm }) 
                         {user ? (
                             <>
                                 <Nav.Link as={Link} to="/">Home</Nav.Link>
-                                <Nav.Link as={Link} to="/users/{userName}">Profile</Nav.Link>
+<                               Nav.Link as={Link} to={`/users/${user.Username}`}>Profile</Nav.Link>
                                 <Nav.Link
                                     onClick={() => {
                                         onLoggedOut(); // calls the logout function passed from MainView

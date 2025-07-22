@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
+import ProfileView from "../profile-view/profile-view";
 import { SignupView } from "../signup-view/signup-view";
 import { LoginView } from "../login-view/login-view";
 import Row from "react-bootstrap/Row";
@@ -11,8 +12,8 @@ import { NavigationBar } from "../navigation-bar/navigation-bar";
 export const MainView = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const storedToken = localStorage.getItem("token");
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
+    const [user, setUser] = useState(storedUser || null); //storedUser is used to keep users logged in on page reload
+    const [token, setToken] = useState(storedToken || null);
     const [movies, setMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredMovies, setFilteredMovies] = useState([]);
@@ -101,6 +102,28 @@ export const MainView = () => {
 
                         }
                     />
+                    <Route
+  path="/users/:username"
+  element={
+    !user ? (
+      <Navigate to="/login" replace />
+    ) : (
+      <Col md={8}>
+        <ProfileView
+          token={token}
+          movies={movies}
+          MovieCard={MovieCard}
+          onLogout={() => {
+            setUser(null);
+            setToken(null);
+            localStorage.clear();
+          }}
+        />
+      </Col>
+    )
+  }
+/>
+
                     <Route
                         path="/:id"
                         element={
