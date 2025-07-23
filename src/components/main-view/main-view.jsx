@@ -159,6 +159,9 @@ export const MainView = () => {
                                             <Col className="mb-4" key={movie._id} xs={12} sm={6} md={4} lg={3}>
                                                 <MovieCard
                                                     movie={movie}
+                                                    token={token}
+                                                    userName={user?.Username}
+                                                    onAddFavorite={(updatedUser) => setUser(updatedUser)}
                                                 />
                                             </Col>
                                         ))}

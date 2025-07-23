@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Form, Button, Container } from "react-bootstrap";
+
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   const { userName } = useParams(); // Extract userName from the route
@@ -117,6 +119,35 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
     }
   };
 
+  // NEW: Remove favorite movie handler
+  const handleRemoveFavorite = async (movieId) => {
+    setError(null);
+    setMessage(null);
+
+    try {
+      const response = await fetch(
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}/favorites/${movieId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to remove movie from favorites");
+      }
+
+      const updatedUser = await response.json();
+      setUserData(updatedUser);
+      setMessage("Movie removed from favorites.");
+      if (onUserUpdate) onUserUpdate(updatedUser);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   if (loading) return <div>Loading profile...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
   if (!userData) return null;
@@ -126,59 +157,59 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   );
 
   return (
-    <div>
+    <Container>
       <h2>Your Profile</h2>
       {message && <p style={{ color: "green" }}>{message}</p>}
 
-      <form onSubmit={handleUpdate}>
-        <label>
+      <Form onSubmit={handleUpdate}>
+        <Form.Label>
           Username:
-          <input
+          <Form.Control
             name="Username"
             value={formData.Username}
             onChange={handleChange}
             required
           />
-        </label>
+        </Form.Label>
         <br />
 
-        <label>
+        <Form.Label>
           Password (leave blank to keep current):
-          <input
+          <Form.Control
             type="password"
             name="Password"
             value={formData.Password}
             onChange={handleChange}
             placeholder="New password"
           />
-        </label>
+        </Form.Label>
         <br />
 
-        <label>
+        <Form.Label>
           Email:
-          <input
+          <Form.Control
             type="email"
             name="Email"
             value={formData.Email}
             onChange={handleChange}
             required
           />
-        </label>
+        </Form.Label>
         <br />
 
-        <label>
+        <Form.Label>
           Date of Birth:
-          <input
+          <Form.Control
             type="date"
             name="Birthday"
             value={formData.Birthday}
             onChange={handleChange}
           />
-        </label>
-        <br />
+        </Form.Label>
+        <br /><br />
 
         <button type="submit">Update Profile</button>
-      </form>
+      </Form>
 
       <hr />
 
@@ -186,19 +217,37 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
       {favoriteMovies.length === 0 ? (
         <p>You have no favorite movies yet.</p>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+        <Container style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
           {favoriteMovies.map((movie) => (
-            <MovieCard key={movie._id} movie={movie} />
+            <Container key={movie._id} style={{ position: "relative" }}>
+              <MovieCard movie={movie} />
+              <Button
+                onClick={() => handleRemoveFavorite(movie._id)}
+                style={{
+                  position: "absolute",
+                  top: "5px",
+                  right: "5px",
+                  backgroundColor: "red",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  padding: "2px 6px",
+                }}
+                aria-label={`Remove ${movie.title} from favorites`}
+              >
+                Remove from list
+              </Button>
+            </Container>
           ))}
-        </div>
+        </Container>
       )}
 
-      <hr />
-
-      <button style={{ color: "red" }} onClick={handleDelete}>
+      <br /><hr /><br />
+      <Button style={{ color: "white" }} onClick={handleDelete}>
         Deregister (Delete Account)
-      </button>
-    </div>
+      </Button>
+    </Container>
   );
 };
 
