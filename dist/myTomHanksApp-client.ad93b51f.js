@@ -16266,7 +16266,7 @@ const MainView = ()=>{
                                 columnNumber: 21
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
-                                path: "/users/:username",
+                                path: "/users/:userName",
                                 element: !user ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
                                     to: "/login",
                                     replace: true
@@ -32529,7 +32529,7 @@ $RefreshReg$(_c, "NavigationBar");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"6PaUz","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"Kwx22","react-bootstrap/Container":"2GCvr","react-bootstrap/Nav":"8jrcb","react-bootstrap/Navbar":"2Lmwo","react-bootstrap/Button":"kNKIo","react-bootstrap/Form":"6LPqw","./navigation-bar.scss":"dnXvl","react-router-dom":"61z4w","react":"jMk1U"}],"dnXvl":[function() {},{}],"7ZITz":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"6PaUz","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"Kwx22","react-bootstrap/Button":"kNKIo","react-bootstrap/Container":"2GCvr","react-bootstrap/Form":"6LPqw","react-bootstrap/Nav":"8jrcb","react-bootstrap/Navbar":"2Lmwo","./navigation-bar.scss":"dnXvl","react-router-dom":"61z4w","react":"jMk1U"}],"dnXvl":[function() {},{}],"7ZITz":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$e912 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$e912.init();
 var prevRefreshReg = globalThis.$RefreshReg$;
@@ -32868,6 +32868,6 @@ $RefreshReg$(_c, "ProfileView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"6PaUz","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"Kwx22","react-router-dom":"61z4w"}],"i5LP7":[function() {},{}],"lJZlQ":[function() {},{}]},["9ebFS","gYcKb"], "gYcKb", "parcelRequireb619", {}, null, null, "http://localhost:1234")
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","react-router-dom":"61z4w","@parcel/transformer-js/src/esmodule-helpers.js":"6PaUz","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"Kwx22"}],"i5LP7":[function() {},{}],"lJZlQ":[function() {},{}]},["9ebFS","gYcKb"], "gYcKb", "parcelRequireb619", {}, null, null, "http://localhost:1234")
 
 //# sourceMappingURL=myTomHanksApp-client.ad93b51f.js.map
