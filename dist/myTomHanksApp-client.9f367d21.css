@@ -59,8 +59,15 @@
   letter-spacing: .2em;
   text-align: center;
   text-shadow: 0 8px 12px #fff4e099;
-  margin-bottom: 30px;
   font-size: 26px;
+}
+
+.navbar-toggler.custom-toggler-icon {
+  border-color: #fff4e0;
+}
+
+.navbar-toggler.custom-toggler-icon .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff4e0' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
 .navbar, .navbar a.nav-link, .navbar .navbar-brand {
@@ -81,6 +88,69 @@
 .search-button:hover, .search-button:focus {
   color: #fff4e0 !important;
   background-color: #526b75 !important;
+}
+
+@media (width <= 991.98px) {
+  .navbar, .navbar > .container-fluid {
+    justify-content: space-between !important;
+    align-items: center !important;
+    display: flex !important;
+  }
+
+  .navbar-brand {
+    margin: 0;
+    padding: 0;
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  #logo-myTomHanksApp {
+    margin-bottom: 15px;
+  }
+
+  .navbar-toggler {
+    align-items: center;
+    height: 40px;
+    margin: 0 0 15px;
+    padding: .25rem .75rem;
+    line-height: 1;
+    display: flex;
+  }
+
+  .navbar-toggler-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .navbar-collapse {
+    text-align: center;
+    align-items: center;
+    font-size: 1.25rem;
+    flex-direction: column !important;
+  }
+
+  .navbar-nav {
+    margin-bottom: 1rem;
+  }
+
+  form.d-flex {
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+
+  form.d-flex input.form-control {
+    font-size: 1.25rem;
+  }
+
+  form.d-flex .search-button {
+    padding: .6rem 1.15rem;
+    font-size: 1.2rem !important;
+  }
 }
 
 *, :after, :before {

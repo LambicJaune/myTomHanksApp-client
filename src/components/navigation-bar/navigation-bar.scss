@@ -5,7 +5,16 @@
     letter-spacing: 0.2em;
     text-align: center;
     text-shadow: 0 8px 12px rgba(255, 244, 224, 0.6);  // Subtle shadow
-    margin-bottom: 30px;
+}
+
+/* Change the border color of the hamburger button */
+.navbar-toggler.custom-toggler-icon {
+  border-color: #fff4e0;
+}
+
+/* Change the three bars (hamburger icon) to use #fff4e0 */
+.navbar-toggler.custom-toggler-icon .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff4e0' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
 .navbar {
@@ -31,5 +40,74 @@
   &:focus {
     background-color: #526b75 !important;
     color: #fff4e0 !important;
+  }
+}
+
+/* MOBILE STYLES ONLY (breakpoint fitting Bootstrap's predifined responsiv breakpoints) */
+@media (max-width: 991.98px) {
+  /* Make navbar and container flex and align center */
+  .navbar,
+  .navbar > .container-fluid {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Navbar brand (logo) tweaks */
+  .navbar-brand {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    font-size: 1.3rem;
+  }
+
+#logo-myTomHanksApp {
+    margin-bottom: 15px;
+  }
+
+  .navbar-toggler {
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    height: 40px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+  /* Inner hamburger icon */
+  .navbar-toggler-icon {
+    display: block;
+    margin: 0 auto;
+    width: 24px;
+    height: 24px;
+  }
+
+  .navbar-collapse {
+    flex-direction: column !important;
+    align-items: center;
+    text-align: center;
+    font-size: 1.25rem;
+  }
+
+  .navbar-nav {
+    margin-bottom: 1rem;
+  }
+
+  form.d-flex {
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+
+    input.form-control {
+      font-size: 1.25rem;
+    }
+
+    .search-button {
+      font-size: 1.2rem !important;
+      padding: 0.6rem 1.15rem;
+    }
   }
 }

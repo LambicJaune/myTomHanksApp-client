@@ -22,8 +22,8 @@ export const NavigationBar = ({ user, onLoggedOut, searchTerm, setSearchTerm }) 
     return (
         <Navbar expand="lg">
             <Container fluid>
-                <Navbar.Brand href="/" id="logo-myTomHanksApp">myTOMHANKSAPP</Navbar.Brand>
-                <Navbar.Toggle aria-controls="navbarScroll" />
+                <Navbar.Brand className="d-flex align-items-center" href="/" id="logo-myTomHanksApp">myTOMHANKSAPP</Navbar.Brand>
+                <Navbar.Toggle className="custom-toggler-icon" aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">
                     <Nav className="ms-auto">
                         {user ? (
