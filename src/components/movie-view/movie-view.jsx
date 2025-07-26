@@ -10,7 +10,6 @@ export const MovieView = ({ movies, setSearchTerm }) => {
 
     const navigate = useNavigate();
     const handleBack = () => {
-        setSearchTerm(""); // reset search term to show all movies
         navigate("/"); // go back to main page (movie list)
     };
 

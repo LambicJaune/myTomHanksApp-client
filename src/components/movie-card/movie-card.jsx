@@ -55,7 +55,7 @@ export const MovieCard = ({ movie, token, userName, onAddFavorite }) => {
         <Card.Text>{movie.director}</Card.Text>
         <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
           <Link to={`/${encodeURIComponent(movie._id)}`}>
-            <Button className="movie-card-link" variant="link">
+            <Button className="movie-card-link" size="lg" variant="link">
               Open
             </Button>
           </Link>
