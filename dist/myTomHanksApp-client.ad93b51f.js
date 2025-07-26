@@ -16554,6 +16554,7 @@ const MovieCard = ({ movie, token, userName, onAddFavorite })=>{
                                 to: `/${encodeURIComponent(movie._id)}`,
                                 children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactBootstrap.Button), {
                                     className: "movie-card-link",
+                                    size: "lg",
                                     variant: "link",
                                     children: "Open"
                                 }, void 0, false, {
