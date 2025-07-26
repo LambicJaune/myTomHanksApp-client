@@ -113,6 +113,13 @@ navDropdown {
   color: #fff4e0 !important;
 }
 
+.dropdown-header {
+  padding-bottom: .25rem;
+  font-weight: 600;
+  color: #000 !important;
+  font-size: 1.1rem !important;
+}
+
 @media (width <= 991.98px) {
   .navbar, .navbar > .container-fluid {
     justify-content: space-between !important;

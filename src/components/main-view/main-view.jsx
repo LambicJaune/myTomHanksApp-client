@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setMovies } from "../../redux/moviesSlice";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 import ProfileView from "../profile-view/profile-view";
@@ -14,9 +16,11 @@ export const MainView = () => {
     const storedToken = localStorage.getItem("token");
     const [user, setUser] = useState(storedUser || null); //storedUser is used to keep users logged in on page reload
     const [token, setToken] = useState(storedToken || null);
-    const [movies, setMovies] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filteredMovies, setFilteredMovies] = useState([]);
+
+    const dispatch = useDispatch();
+    const movies = useSelector((state) => state.movies.movies);
+    const genre = useSelector((state) => state.movies.filter.genre);
+    const director = useSelector((state) => state.movies.filter.director);
 
     useEffect(() => {
         if (!token) {
@@ -35,24 +39,26 @@ export const MainView = () => {
                     director: doc.director?.name || "Unknown director",
                 }));
 
-                setMovies(moviesFromApi);
-                setFilteredMovies(moviesFromApi);
+                dispatch(setMovies(moviesFromApi));
+
             })
             .catch((err) => {
                 console.error("Fetch error:", err);
             });
-    }, [token]);
+    }, [token, dispatch]);
 
-    useEffect(() => {
-        if (searchTerm === "") {
-            setFilteredMovies(movies);
-        } else {
-            const filtered = movies.filter(movie =>
-                movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setFilteredMovies(filtered);
-        }
-    }, [searchTerm, movies]);
+
+    const filteredMovies = movies.filter((movie) => {
+        const matchesGenre = genre && movie.genre === genre;
+        const matchesDirector = director && movie.director === director;
+
+        // If no filters are active, show everything
+        if (!genre && !director) return true;
+
+        // Use OR logic: match either genre or director
+        return matchesGenre || matchesDirector;
+    });
+
 
     return (
         <BrowserRouter>
@@ -61,8 +67,7 @@ export const MainView = () => {
                 setToken(null);
                 localStorage.clear();
             }}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
+                movies={movies}
             />
             <Row className="justify-content-md-center">
                 <Routes>
@@ -103,26 +108,26 @@ export const MainView = () => {
                         }
                     />
                     <Route
-  path="/users/:userName"
-  element={
-    !user ? (
-      <Navigate to="/login" replace />
-    ) : (
-      <Col md={9}>
-        <ProfileView
-          token={token}
-          movies={movies}
-          MovieCard={MovieCard}
-          onLogout={() => {
-            setUser(null);
-            setToken(null);
-            localStorage.clear();
-          }}
-        />
-      </Col>
-    )
-  }
-/>
+                        path="/users/:userName"
+                        element={
+                            !user ? (
+                                <Navigate to="/login" replace />
+                            ) : (
+                                <Col md={9}>
+                                    <ProfileView
+                                        token={token}
+                                        movies={movies}
+                                        MovieCard={MovieCard}
+                                        onLogout={() => {
+                                            setUser(null);
+                                            setToken(null);
+                                            localStorage.clear();
+                                        }}
+                                    />
+                                </Col>
+                            )
+                        }
+                    />
 
                     <Route
                         path="/:id"
@@ -136,7 +141,6 @@ export const MainView = () => {
                                     <Col md={4}>
                                         <MovieView
                                             movies={filteredMovies}
-                                            setSearchTerm={setSearchTerm}
                                         />
                                     </Col>
                                 )}

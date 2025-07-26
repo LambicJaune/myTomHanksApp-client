@@ -69,6 +69,13 @@ navDropdown {
 color: #fff4e0 !important;
 }
 
+.dropdown-header {
+  color: #000 !important;
+  font-weight: 600; 
+  font-size: 1.1rem !important; 
+  padding-bottom: 0.25rem;
+}
+
 /* MOBILE STYLES ONLY (breakpoint fitting Bootstrap's predifined responsiv breakpoints) */
 @media (max-width: 991.98px) {
   /* Make navbar and container flex and align center */
