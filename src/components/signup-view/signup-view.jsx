@@ -8,8 +8,40 @@ export const SignupView = () => {
     const [email, setEmail] = useState("");
     const [birthday, setBirthday] = useState("");
 
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+
+        if (!username || username.length < 5) {
+            newErrors.username = "Username must be at least 5 characters long.";
+        } else if (!/^[a-zA-Z0-9]+$/.test(username)) {
+            newErrors.username = "Username must contain only letters and numbers.";
+        }
+
+        if (!password) {
+            newErrors.password = "Password is required.";
+        } else if (/\s/.test(password)) {
+            newErrors.password = "Password must not contain spaces.";
+        }
+
+        if (!email) {
+            newErrors.email = "Email is required.";
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = "Email format is invalid.";
+        }
+
+        if (!birthday) {
+            newErrors.birthday = "Birthday is required.";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
+        if (!validate()) return;
 
         const data = {
             Username: username,
@@ -17,7 +49,6 @@ export const SignupView = () => {
             Email: email,
             Birthday: birthday,
         };
-        console.log("Sending signup data:", data);
 
         fetch("https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users", {
             method: "POST",
@@ -30,7 +61,9 @@ export const SignupView = () => {
                 alert("Signup successful");
                 window.location.reload();
             } else {
-                alert("Signup failed");
+                response.json().then((data) => {
+                    alert("Signup failed: " + (data?.errors?.[0]?.msg || "Unknown error"));
+                });
             }
         });
     };
@@ -43,9 +76,12 @@ export const SignupView = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    isInvalid={!!errors.username}
                     required
-                    minLength={3}
                 />
+                <Form.Control.Feedback type="invalid">
+                    {errors.username}
+                </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId="formPassword" className="mb-3">
@@ -54,8 +90,12 @@ export const SignupView = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    isInvalid={!!errors.password}
                     required
                 />
+                <Form.Control.Feedback type="invalid">
+                    {errors.password}
+                </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId="formEmail" className="mb-3">
@@ -64,8 +104,12 @@ export const SignupView = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    isInvalid={!!errors.email}
                     required
                 />
+                <Form.Control.Feedback type="invalid">
+                    {errors.email}
+                </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group controlId="formBirthday" className="mb-3">
@@ -74,8 +118,12 @@ export const SignupView = () => {
                     type="date"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
+                    isInvalid={!!errors.birthday}
                     required
                 />
+                <Form.Control.Feedback type="invalid">
+                    {errors.birthday}
+                </Form.Control.Feedback>
             </Form.Group>
 
             <Button variant="primary" type="submit">
