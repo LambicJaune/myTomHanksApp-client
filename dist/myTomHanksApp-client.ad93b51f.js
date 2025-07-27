@@ -36014,6 +36014,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
     ]);
     const handleSubmit = (e)=>{
         e.preventDefault();
+        dispatch((0, _moviesSlice.clearFilter)());
         setSearchTerm(inputValue);
     };
     // Get unique genres and directors
@@ -36035,7 +36036,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                     children: "myTOMHANKSAPP"
                 }, void 0, false, {
                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                    lineNumber: 33,
+                    lineNumber: 34,
                     columnNumber: 17
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navbarDefault.default).Toggle, {
@@ -36043,7 +36044,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                     "aria-controls": "navbarScroll"
                 }, void 0, false, {
                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                    lineNumber: 34,
+                    lineNumber: 35,
                     columnNumber: 17
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navbarDefault.default).Collapse, {
@@ -36056,11 +36057,11 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDefault.default).Link, {
                                         as: (0, _reactRouterDom.Link),
                                         to: "/",
-                                        onClick: ()=>dispatch(clearFilter()),
+                                        onClick: ()=>dispatch((0, _moviesSlice.clearFilter)()),
                                         children: "Home"
                                     }, void 0, false, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 39,
+                                        lineNumber: 40,
                                         columnNumber: 33
                                     }, undefined),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDropdownDefault.default), {
@@ -36071,7 +36072,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                                 children: "Genre"
                                             }, void 0, false, {
                                                 fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                                lineNumber: 48,
+                                                lineNumber: 49,
                                                 columnNumber: 37
                                             }, undefined),
                                             genres.map((genre)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDropdownDefault.default).Item, {
@@ -36079,19 +36080,19 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                                     children: genre
                                                 }, genre, false, {
                                                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                                    lineNumber: 50,
+                                                    lineNumber: 51,
                                                     columnNumber: 41
                                                 }, undefined)),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDropdownDefault.default).Divider, {}, void 0, false, {
                                                 fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                                lineNumber: 57,
+                                                lineNumber: 58,
                                                 columnNumber: 37
                                             }, undefined),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDropdownDefault.default).Header, {
                                                 children: "Director"
                                             }, void 0, false, {
                                                 fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                                lineNumber: 58,
+                                                lineNumber: 59,
                                                 columnNumber: 37
                                             }, undefined),
                                             directors.map((director)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDropdownDefault.default).Item, {
@@ -36099,13 +36100,13 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                                     children: director
                                                 }, director, false, {
                                                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                                    lineNumber: 60,
+                                                    lineNumber: 61,
                                                     columnNumber: 41
                                                 }, undefined))
                                         ]
                                     }, void 0, true, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 47,
+                                        lineNumber: 48,
                                         columnNumber: 33
                                     }, undefined),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDefault.default).Link, {
@@ -36114,7 +36115,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                         children: "Profile"
                                     }, void 0, false, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 69,
+                                        lineNumber: 70,
                                         columnNumber: 33
                                     }, undefined),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDefault.default).Link, {
@@ -36122,7 +36123,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                         children: "Logout"
                                     }, void 0, false, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 70,
+                                        lineNumber: 71,
                                         columnNumber: 33
                                     }, undefined)
                                 ]
@@ -36134,7 +36135,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                         children: "Login"
                                     }, void 0, false, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 74,
+                                        lineNumber: 75,
                                         columnNumber: 33
                                     }, undefined),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _navDefault.default).Link, {
@@ -36143,14 +36144,14 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                         children: "Signup"
                                     }, void 0, false, {
                                         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                        lineNumber: 75,
+                                        lineNumber: 76,
                                         columnNumber: 33
                                     }, undefined)
                                 ]
                             }, void 0, true)
                         }, void 0, false, {
                             fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                            lineNumber: 36,
+                            lineNumber: 37,
                             columnNumber: 21
                         }, undefined),
                         user && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _formDefault.default), {
@@ -36166,7 +36167,7 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                     onChange: (e)=>setInputValue(e.target.value)
                                 }, void 0, false, {
                                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                    lineNumber: 82,
+                                    lineNumber: 83,
                                     columnNumber: 29
                                 }, undefined),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _buttonDefault.default), {
@@ -36175,30 +36176,30 @@ const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movi
                                     children: "Search"
                                 }, void 0, false, {
                                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                                    lineNumber: 90,
+                                    lineNumber: 91,
                                     columnNumber: 29
                                 }, undefined)
                             ]
                         }, void 0, true, {
                             fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                            lineNumber: 81,
+                            lineNumber: 82,
                             columnNumber: 25
                         }, undefined)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/navigation-bar/navigation-bar.jsx",
-                    lineNumber: 35,
+                    lineNumber: 36,
                     columnNumber: 17
                 }, undefined)
             ]
         }, void 0, true, {
             fileName: "src/components/navigation-bar/navigation-bar.jsx",
-            lineNumber: 32,
+            lineNumber: 33,
             columnNumber: 13
         }, undefined)
     }, void 0, false, {
         fileName: "src/components/navigation-bar/navigation-bar.jsx",
-        lineNumber: 31,
+        lineNumber: 32,
         columnNumber: 9
     }, undefined);
 };
