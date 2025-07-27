@@ -8,7 +8,7 @@ import './navigation-bar.scss';
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setGenreFilter, setDirectorFilter } from "../../redux/moviesSlice";
+import { setGenreFilter, setDirectorFilter, clearFilter } from "../../redux/moviesSlice";
 
 export const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTerm, movies }) => {
     const [inputValue, setInputValue] = useState(searchTerm || "");
@@ -20,6 +20,7 @@ export const NavigationBar = ({ user, onLoggedOut, searchTerm = "", setSearchTer
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        dispatch(clearFilter()); 
         setSearchTerm(inputValue);
     };
 
