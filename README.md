@@ -94,8 +94,8 @@ This project is configured for deployment on Netlify. The `netlify.toml` file in
   status = 200
 
 
-This runs the app on:
-http://localhost:1234 (default Parcel port)
+--------------------------
+
 
 Author & License
 Author: LambicJaune (Gael Giraud)
