@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   const { userName: paramUserName } = useParams();
   const navigate = useNavigate();
 
@@ -20,24 +20,16 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
   const filter = useSelector((state) => state.movies.filter);
 
-  // Initialize userData from prop or param on first render
+  // Fetch full user info once token & paramUserName are ready
   useEffect(() => {
-    if (!userData && (propUserName || paramUserName)) {
-      setUserData({ Username: propUserName || paramUserName });
-    }
-  }, [propUserName, paramUserName, userData]);
-
-  // Fetch full user info once token & userData.Username are ready
-  useEffect(() => {
-    const userNameForApi = userData?.Username;
-    if (!token || !userNameForApi) return;
+    if (!token || !paramUserName) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${paramUserName}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
@@ -58,7 +50,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     };
 
     fetchUser();
-  }, [token, userData?.Username]);
+  }, [token, paramUserName]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -69,8 +61,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     setError(null);
     setMessage(null);
 
-    const userNameForApi = userData?.Username;
-    if (!userNameForApi) return;
+    if (!userData?.Username) return;
 
     try {
       const payload = {
@@ -81,7 +72,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
       if (formData.Password?.trim()) payload.Password = formData.Password;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         {
           method: "PUT",
           headers: {
@@ -101,10 +92,13 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
       setUserData(updatedUser);
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
+
+      // Update global state and localStorage
       onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      if (updatedUser.Username !== userNameForApi) {
+      // Navigate to new username if it changed
+      if (updatedUser.Username !== userData.Username) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
     } catch (err) {
@@ -116,11 +110,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     if (!window.confirm("Are you sure you want to delete your account?")) return;
 
     try {
-      const userNameForApi = userData?.Username;
-      if (!userNameForApi) return;
+      if (!userData?.Username) return;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -141,11 +134,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     setMessage(null);
 
     try {
-      const userNameForApi = userData?.Username;
-      if (!userNameForApi) return;
+      if (!userData?.Username) return;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}/favorites/${movieId}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
