@@ -6,28 +6,52 @@ import { useSelector } from "react-redux";
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user }) => {
   const navigate = useNavigate();
 
+  const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
-    Username: user?.Username || "",
+    Username: "",
     Password: "",
-    Email: user?.Email || "",
-    Birthday: user?.Birthday ? user.Birthday.substring(0, 10) : "",
+    Email: "",
+    Birthday: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const filter = useSelector((state) => state.movies.filter);
 
-  // Update formData whenever the parent user changes (after update)
+  const userName = user?.Username;
+
+  // Fetch full user info when token or username changes
   useEffect(() => {
-    if (!user) return;
-    setFormData({
-      Username: user.Username,
-      Password: "",
-      Email: user.Email,
-      Birthday: user.Birthday ? user.Birthday.substring(0, 10) : "",
-    });
-  }, [user]);
+    if (!token || !userName) return;
+
+    const fetchUser = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!response.ok) throw new Error("Failed to fetch user info");
+
+        const data = await response.json();
+        setUserData(data);
+        setFormData({
+          Username: data.Username,
+          Password: "",
+          Email: data.Email,
+          Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
+        });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [token, userName]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,7 +62,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
     setError(null);
     setMessage(null);
 
-    if (!user?.Username) return;
+    if (!userData?.Username) return;
 
     try {
       const payload = {
@@ -49,7 +73,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
       if (formData.Password?.trim()) payload.Password = formData.Password;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         {
           method: "PUT",
           headers: {
@@ -66,17 +90,18 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
       }
 
       const updatedUser = await response.json();
+      setUserData(updatedUser);
+      setFormData((prev) => ({ ...prev, Password: "" }));
+      setMessage("Profile updated successfully!");
 
-      // 1️⃣ Update parent MainView state first
+      // Update parent MainView and localStorage
       onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // 2️⃣ Update form message
-      setMessage("Profile updated successfully!");
-      setFormData((prev) => ({ ...prev, Password: "" }));
-
-      // 3️⃣ Navigate to new username after parent state is updated
-      navigate(`/users/${updatedUser.Username}`, { replace: true });
+      // Navigate to new username if changed
+      if (updatedUser.Username !== userName) {
+        navigate(`/users/${updatedUser.Username}`, { replace: true });
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -87,7 +112,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -109,23 +134,26 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}/favorites/${movieId}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (!response.ok) throw new Error("Failed to remove movie from favorites");
 
       const updatedUser = await response.json();
-      onUserUpdate?.(updatedUser);
+      setUserData(updatedUser);
       setMessage("Movie removed from favorites.");
+      onUserUpdate?.(updatedUser);
     } catch (err) {
       setError(err.message);
     }
   };
 
-  if (!user) return null;
+  if (loading) return <div>Loading profile...</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (!userData) return null;
 
-  const favoriteMovies = movies.filter((m) => user.FavoriteMovies?.includes(m._id));
+  const favoriteMovies = movies.filter((m) => userData.FavoriteMovies?.includes(m._id));
   const filteredFavorites = favoriteMovies.filter((movie) => {
     const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
     const matchesDirector = filter.director ? movie.director === filter.director : false;
@@ -137,7 +165,6 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
     <Container style={{ maxWidth: "960px" }}>
       <h2>Your Profile</h2>
       {message && <p style={{ color: "green" }}>{message}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <Form onSubmit={handleUpdate}>
         <Form.Label>
