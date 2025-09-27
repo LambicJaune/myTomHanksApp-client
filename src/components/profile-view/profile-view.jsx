@@ -81,7 +81,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
       }
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
         {
           method: "PUT",
           headers: {
