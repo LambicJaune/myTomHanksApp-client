@@ -4,291 +4,291 @@ import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
-  const { userName: paramUserName } = useParams();
-  const navigate = useNavigate();
+    const { userName: paramUserName } = useParams();
+    const navigate = useNavigate();
 
-  // ✅ Use param if available, otherwise fallback to prop
-  const userName = paramUserName || propUserName;
+    const [userData, setUserData] = useState(null);
+    const [formData, setFormData] = useState({
+        Username: "",
+        Password: "",
+        Email: "",
+        Birthday: "",
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
 
-  const [userData, setUserData] = useState(null);
-  const [formData, setFormData] = useState({
-    Username: "",
-    Password: "",
-    Email: "",
-    Birthday: "",
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
+    const filter = useSelector((state) => state.movies.filter);
 
-  const filter = useSelector((state) => state.movies.filter);
+    // ✅ Use param on first load, but once userData is set, prefer that
+    const userName = userData?.Username || paramUserName || propUserName;
 
-  useEffect(() => {
-    if (!token || !userName) return;
+    useEffect(() => {
+        if (!token || !userName) return;
 
-    const fetchUser = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const fetchUser = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch(
+                    `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user info");
+                }
 
-        const data = await response.json();
-        setUserData(data);
-        setFormData({
-          Username: data.Username,
-          Password: "",
-          Email: data.Email,
-          Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
-        });
-      } catch (err) {
-        setError(err.message);
-      }
-      setLoading(false);
+                const data = await response.json();
+                setUserData(data);
+                setFormData({
+                    Username: data.Username,
+                    Password: "",
+                    Email: data.Email,
+                    Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
+                });
+            } catch (err) {
+                setError(err.message);
+            }
+            setLoading(false);
+        };
+
+        fetchUser();
+    }, [token, userName]);
+
+    const handleChange = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
     };
 
-    fetchUser();
-  }, [token, userName]);
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setMessage(null);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+        try {
+            const payload = {
+                Username: formData.Username,
+                Email: formData.Email,
+                Birthday: formData.Birthday,
+            };
+            if (formData.Password && formData.Password.trim() !== "") {
+                payload.Password = formData.Password;
+            }
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setMessage(null);
+            const response = await fetch(
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
-    try {
-      const payload = {
-        Username: formData.Username,
-        Email: formData.Email,
-        Birthday: formData.Birthday,
-      };
-      if (formData.Password && formData.Password.trim() !== "") {
-        payload.Password = formData.Password;
-      }
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || "Failed to update user");
+            }
 
-      const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
+            const updatedUser = await response.json();
+            setUserData(updatedUser);
+            setFormData((prev) => ({ ...prev, Password: "" }));
+            setMessage("Profile updated successfully!");
+
+            if (onUserUpdate) onUserUpdate(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+
+            if (updatedUser.Username !== userData.Username) {
+                navigate(`/users/${updatedUser.Username}`, { replace: true });
+            }
+        } catch (err) {
+            setError(err.message);
         }
-      );
+    };
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Failed to update user");
-      }
+    const handleDelete = async () => {
+        if (!window.confirm("Are you sure you want to delete your account?")) return;
 
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      setFormData((prev) => ({ ...prev, Password: "" }));
-      setMessage("Profile updated successfully!");
+        try {
+            const response = await fetch(
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-      if (onUserUpdate) onUserUpdate(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || "Failed to delete user");
+            }
 
-      if (updatedUser.Username !== userData.Username) {
-        navigate(`/users/${updatedUser.Username}`, { replace: true });
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
-
-    try {
-      const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            alert("Account deleted successfully.");
+            onLogout();
+        } catch (err) {
+            setError(err.message);
         }
-      );
+    };
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Failed to delete user");
-      }
+    const handleRemoveFavorite = async (movieId) => {
+        setError(null);
+        setMessage(null);
 
-      alert("Account deleted successfully.");
-      onLogout();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+        try {
+            const response = await fetch(
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-  const handleRemoveFavorite = async (movieId) => {
-    setError(null);
-    setMessage(null);
+            if (!response.ok) {
+                throw new Error("Failed to remove movie from favorites");
+            }
 
-    try {
-      const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            const updatedUser = await response.json();
+            setUserData(updatedUser);
+            setMessage("Movie removed from favorites.");
+            if (onUserUpdate) onUserUpdate(updatedUser);
+        } catch (err) {
+            setError(err.message);
         }
-      );
+    };
 
-      if (!response.ok) {
-        throw new Error("Failed to remove movie from favorites");
-      }
+    if (loading) return <div>Loading profile...</div>;
+    if (error) return <div style={{ color: "red" }}>{error}</div>;
+    if (!userData) return null;
 
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      setMessage("Movie removed from favorites.");
-      if (onUserUpdate) onUserUpdate(updatedUser);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+    const favoriteMovies = movies.filter((m) =>
+        userData.FavoriteMovies?.includes(m._id)
+    );
 
-  if (loading) return <div>Loading profile...</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (!userData) return null;
+    const filteredFavorites = favoriteMovies.filter((movie) => {
+        const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
+        const matchesDirector = filter.director ? movie.director === filter.director : false;
+        if (!filter.genre && !filter.director) return true;
+        return matchesGenre || matchesDirector;
+    });
 
-  const favoriteMovies = movies.filter((m) =>
-    userData.FavoriteMovies?.includes(m._id)
-  );
+    return (
+        <Container style={{ maxWidth: "960px" }}>
+            <h2>Your Profile</h2>
+            {message && <p style={{ color: "green" }}>{message}</p>}
 
-  const filteredFavorites = favoriteMovies.filter((movie) => {
-    const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
-    const matchesDirector = filter.director ? movie.director === filter.director : false;
-    if (!filter.genre && !filter.director) return true;
-    return matchesGenre || matchesDirector;
-  });
+            <Form onSubmit={handleUpdate}>
+                <Form.Label>
+                    Username:
+                    <Form.Control
+                        name="Username"
+                        value={formData.Username}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Label>
+                <br />
 
-  return (
-    <Container style={{ maxWidth: "960px" }}>
-      <h2>Your Profile</h2>
-      {message && <p style={{ color: "green" }}>{message}</p>}
+                <Form.Label>
+                    Password (leave blank to keep current):
+                    <Form.Control
+                        type="password"
+                        name="Password"
+                        value={formData.Password}
+                        onChange={handleChange}
+                        placeholder="New password"
+                    />
+                </Form.Label>
+                <br />
 
-      <Form onSubmit={handleUpdate}>
-        <Form.Label>
-          Username:
-          <Form.Control
-            name="Username"
-            value={formData.Username}
-            onChange={handleChange}
-            required
-          />
-        </Form.Label>
-        <br />
+                <Form.Label>
+                    Email:
+                    <Form.Control
+                        type="email"
+                        name="Email"
+                        value={formData.Email}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Label>
+                <br />
 
-        <Form.Label>
-          Password (leave blank to keep current):
-          <Form.Control
-            type="password"
-            name="Password"
-            value={formData.Password}
-            onChange={handleChange}
-            placeholder="New password"
-          />
-        </Form.Label>
-        <br />
+                <Form.Label>
+                    Date of Birth:
+                    <Form.Control
+                        type="date"
+                        name="Birthday"
+                        value={formData.Birthday}
+                        onChange={handleChange}
+                    />
+                </Form.Label>
+                <br />
+                <Button type="submit" variant="primary">Update Profile</Button>
+            </Form>
 
-        <Form.Label>
-          Email:
-          <Form.Control
-            type="email"
-            name="Email"
-            value={formData.Email}
-            onChange={handleChange}
-            required
-          />
-        </Form.Label>
-        <br />
+            <hr />
 
-        <Form.Label>
-          Date of Birth:
-          <Form.Control
-            type="date"
-            name="Birthday"
-            value={formData.Birthday}
-            onChange={handleChange}
-          />
-        </Form.Label>
-        <br />
-        <Button type="submit" variant="primary">Update Profile</Button>
-      </Form>
+            <h3>Your Favorite Movies</h3>
+            <br />
+            {filteredFavorites.length === 0 ? (
+                <p>No favorites match your current filter.</p>
+            ) : (
+                <Row className="g-4">
+                    {filteredFavorites.map((movie) => (
+                        <Col xs={12} sm={6} md={4} key={movie._id}>
+                            <div
+                                style={{
+                                    position: "relative",
+                                    height: "100%",
+                                    minHeight: "400px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                }}
+                            >
+                                <MovieCard movie={movie} />
+                                <Button
+                                    onClick={() => handleRemoveFavorite(movie._id)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "5px",
+                                        right: "5px",
+                                        backgroundColor: "red",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        padding: "2px 6px",
+                                    }}
+                                    aria-label={`Remove ${movie.title} from favorites`}
+                                >
+                                    Remove from list
+                                </Button>
+                            </div>
+                        </Col>
+                    ))}
+                </Row>
+            )}
 
-      <hr />
-
-      <h3>Your Favorite Movies</h3>
-      <br />
-      {filteredFavorites.length === 0 ? (
-        <p>No favorites match your current filter.</p>
-      ) : (
-        <Row className="g-4">
-          {filteredFavorites.map((movie) => (
-            <Col xs={12} sm={6} md={4} key={movie._id}>
-              <div
-                style={{
-                  position: "relative",
-                  height: "100%",
-                  minHeight: "400px",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <MovieCard movie={movie} />
-                <Button
-                  onClick={() => handleRemoveFavorite(movie._id)}
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    right: "5px",
-                    backgroundColor: "red",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    padding: "2px 6px",
-                  }}
-                  aria-label={`Remove ${movie.title} from favorites`}
-                >
-                  Remove from list
-                </Button>
-              </div>
-            </Col>
-          ))}
-        </Row>
-      )}
-
-      <br />
-      <hr />
-      <br />
-      <Button variant="danger" onClick={handleDelete}>
-        Deregister (Delete Account)
-      </Button>
-    </Container>
-  );
+            <br />
+            <hr />
+            <br />
+            <Button variant="danger" onClick={handleDelete}>
+                Deregister (Delete Account)
+            </Button>
+        </Container>
+    );
 };
 
 export default ProfileView;
