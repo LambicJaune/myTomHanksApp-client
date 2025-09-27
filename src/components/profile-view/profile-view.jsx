@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
-import { useSelector } from "react-redux";
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate }) => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     Username: "",
     Password: "",
@@ -15,9 +15,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
-  const filter = useSelector((state) => state.movies.filter);
-
-  // Load user data into form
+  // Populate form whenever user changes
   useEffect(() => {
     if (!user) return;
     setFormData({
@@ -64,12 +62,19 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
         throw new Error(errData.message || "Failed to update user");
       }
 
-      const updatedUser = await response.json();
+      const data = await response.json();
+      const updatedUser = data.user;
+      const newToken = data.token;
 
-      onUserUpdate(updatedUser); // update MainView & localStorage
+      // Update state and localStorage
+      onUserUpdate(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem("token", newToken);
+
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
 
+      // Update URL if username changed
       if (updatedUser.Username !== user.Username) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
@@ -113,6 +118,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
 
       const updatedUser = await response.json();
       onUserUpdate(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       setMessage("Movie removed from favorites.");
     } catch (err) {
       setError(err.message);
@@ -123,12 +129,6 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
   if (error) return <div style={{ color: "red" }}>{error}</div>;
 
   const favoriteMovies = movies.filter((m) => user.FavoriteMovies?.includes(m._id));
-  const filteredFavorites = favoriteMovies.filter((movie) => {
-    const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
-    const matchesDirector = filter.director ? movie.director === filter.director : false;
-    if (!filter.genre && !filter.director) return true;
-    return matchesGenre || matchesDirector;
-  });
 
   return (
     <Container style={{ maxWidth: "960px" }}>
@@ -138,37 +138,68 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
       <Form onSubmit={handleUpdate}>
         <Form.Label>
           Username:
-          <Form.Control name="Username" value={formData.Username} onChange={handleChange} required />
+          <Form.Control
+            name="Username"
+            value={formData.Username}
+            onChange={handleChange}
+            required
+          />
         </Form.Label>
         <br />
         <Form.Label>
           Password (leave blank to keep current):
-          <Form.Control type="password" name="Password" value={formData.Password} onChange={handleChange} placeholder="New password" />
+          <Form.Control
+            type="password"
+            name="Password"
+            value={formData.Password}
+            onChange={handleChange}
+            placeholder="New password"
+          />
         </Form.Label>
         <br />
         <Form.Label>
           Email:
-          <Form.Control type="email" name="Email" value={formData.Email} onChange={handleChange} required />
+          <Form.Control
+            type="email"
+            name="Email"
+            value={formData.Email}
+            onChange={handleChange}
+            required
+          />
         </Form.Label>
         <br />
         <Form.Label>
           Date of Birth:
-          <Form.Control type="date" name="Birthday" value={formData.Birthday} onChange={handleChange} />
+          <Form.Control
+            type="date"
+            name="Birthday"
+            value={formData.Birthday}
+            onChange={handleChange}
+          />
         </Form.Label>
         <br />
-        <Button type="submit" variant="primary">Update Profile</Button>
+        <Button type="submit" variant="primary">
+          Update Profile
+        </Button>
       </Form>
 
       <hr />
       <h3>Your Favorite Movies</h3>
       <br />
-      {filteredFavorites.length === 0 ? (
-        <p>No favorites match your current filter.</p>
+      {favoriteMovies.length === 0 ? (
+        <p>No favorite movies yet.</p>
       ) : (
         <Row className="g-4">
-          {filteredFavorites.map((movie) => (
+          {favoriteMovies.map((movie) => (
             <Col xs={12} sm={6} md={4} key={movie._id}>
-              <div style={{ position: "relative", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+              <div
+                style={{
+                  position: "relative",
+                  minHeight: "400px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <MovieCard movie={movie} />
                 <Button
                   onClick={() => handleRemoveFavorite(movie._id)}
@@ -196,7 +227,9 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
       <br />
       <hr />
       <br />
-      <Button variant="danger" onClick={handleDelete}>Deregister (Delete Account)</Button>
+      <Button variant="danger" onClick={handleDelete}>
+        Deregister (Delete Account)
+      </Button>
     </Container>
   );
 };
