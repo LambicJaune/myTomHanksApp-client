@@ -88,7 +88,10 @@ export const MainView = () => {
             }
           />
 
-          <Route path="/signup" element={user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>} />
+          <Route
+            path="/signup"
+            element={user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>}
+          />
 
           <Route
             path="/users/:userName"
@@ -101,6 +104,7 @@ export const MainView = () => {
                     token={token}
                     movies={movies}
                     MovieCard={MovieCard}
+                    userName={user?.Username}
                     onLogout={() => {
                       setUser(null);
                       setToken(null);
