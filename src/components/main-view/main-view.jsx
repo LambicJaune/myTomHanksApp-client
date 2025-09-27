@@ -16,6 +16,7 @@ export const MainView = () => {
   const storedToken = localStorage.getItem("token");
   const [user, setUser] = useState(storedUser || null);
   const [token, setToken] = useState(storedToken || null);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useDispatch();
@@ -38,7 +39,6 @@ export const MainView = () => {
           genre: doc.genre?.name || "Unknown genre",
           director: doc.director?.name || "Unknown director",
         }));
-
         dispatch(setMovies(moviesFromApi));
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -88,7 +88,13 @@ export const MainView = () => {
               )
             }
           />
-          <Route path="/signup" element={user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>} />
+
+          <Route
+            path="/signup"
+            element={
+              user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>
+            }
+          />
 
           <Route
             path="/users/:userName"
@@ -107,7 +113,10 @@ export const MainView = () => {
                       setToken(null);
                       localStorage.clear();
                     }}
-                    onUserUpdate={(updatedUser) => setUser(updatedUser)}
+                    onUserUpdate={(updatedUser) => {
+                      setUser(updatedUser);
+                      localStorage.setItem("user", JSON.stringify(updatedUser));
+                    }}
                   />
                 </Col>
               )
@@ -135,9 +144,7 @@ export const MainView = () => {
               !user ? (
                 <Navigate to="/login" replace />
               ) : searchedMovies.length === 0 ? (
-                <Col md={6}>
-                  <div>The list is empty!</div>
-                </Col>
+                <Col md={6}><div>The list is empty!</div></Col>
               ) : (
                 <>
                   {searchedMovies.map((movie) => (
@@ -146,7 +153,10 @@ export const MainView = () => {
                         movie={movie}
                         token={token}
                         userName={user?.Username}
-                        onAddFavorite={(updatedUser) => setUser(updatedUser)}
+                        onAddFavorite={(updatedUser) => {
+                          setUser(updatedUser);
+                          localStorage.setItem("user", JSON.stringify(updatedUser));
+                        }}
                       />
                     </Col>
                   ))}
