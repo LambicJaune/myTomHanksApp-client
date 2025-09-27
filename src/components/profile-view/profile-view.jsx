@@ -3,10 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate }) => {
   const navigate = useNavigate();
-
-  const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     Username: "",
     Password: "",
@@ -19,37 +17,17 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
   const filter = useSelector((state) => state.movies.filter);
 
-  // Fetch full user info once token & username prop are ready
+  // Load user data into form
   useEffect(() => {
-    if (!token || !userName) return;
-
-    const fetchUser = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!response.ok) throw new Error("Failed to fetch user info");
-
-        const data = await response.json();
-        setUserData(data);
-        setFormData({
-          Username: data.Username,
-          Password: "",
-          Email: data.Email,
-          Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
-        });
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [token, userName]);
+    if (!user) return;
+    setFormData({
+      Username: user.Username,
+      Password: "",
+      Email: user.Email,
+      Birthday: user.Birthday ? user.Birthday.substring(0, 10) : "",
+    });
+    setLoading(false);
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -59,8 +37,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     e.preventDefault();
     setError(null);
     setMessage(null);
-
-    if (!userData?.Username) return;
+    if (!user) return;
 
     try {
       const payload = {
@@ -68,10 +45,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
         Email: formData.Email,
         Birthday: formData.Birthday,
       };
-      if (formData.Password?.trim()) payload.Password = formData.Password;
+      if (formData.Password.trim()) payload.Password = formData.Password;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
         {
           method: "PUT",
           headers: {
@@ -88,16 +65,14 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
       }
 
       const updatedUser = await response.json();
-      setUserData(updatedUser);
+
+      onUserUpdate(updatedUser); // update MainView & localStorage
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
 
-      // Update parent MainView and localStorage immediately
-      onUserUpdate?.(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      // Navigate to updated username immediately
-      navigate(`/users/${updatedUser.Username}`, { replace: true });
+      if (updatedUser.Username !== user.Username) {
+        navigate(`/users/${updatedUser.Username}`, { replace: true });
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -108,7 +83,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -130,17 +105,15 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}/favorites/${movieId}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (!response.ok) throw new Error("Failed to remove movie from favorites");
 
       const updatedUser = await response.json();
-      setUserData(updatedUser);
+      onUserUpdate(updatedUser);
       setMessage("Movie removed from favorites.");
-      onUserUpdate?.(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (err) {
       setError(err.message);
     }
@@ -148,9 +121,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
   if (loading) return <div>Loading profile...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
-  if (!userData) return null;
 
-  const favoriteMovies = movies.filter((m) => userData.FavoriteMovies?.includes(m._id));
+  const favoriteMovies = movies.filter((m) => user.FavoriteMovies?.includes(m._id));
   const filteredFavorites = favoriteMovies.filter((movie) => {
     const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
     const matchesDirector = filter.director ? movie.director === filter.director : false;
@@ -171,13 +143,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
         <br />
         <Form.Label>
           Password (leave blank to keep current):
-          <Form.Control
-            type="password"
-            name="Password"
-            value={formData.Password}
-            onChange={handleChange}
-            placeholder="New password"
-          />
+          <Form.Control type="password" name="Password" value={formData.Password} onChange={handleChange} placeholder="New password" />
         </Form.Label>
         <br />
         <Form.Label>
@@ -202,7 +168,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
         <Row className="g-4">
           {filteredFavorites.map((movie) => (
             <Col xs={12} sm={6} md={4} key={movie._id}>
-              <div style={{ position: "relative", height: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+              <div style={{ position: "relative", minHeight: "400px", display: "flex", flexDirection: "column" }}>
                 <MovieCard movie={movie} />
                 <Button
                   onClick={() => handleRemoveFavorite(movie._id)}
