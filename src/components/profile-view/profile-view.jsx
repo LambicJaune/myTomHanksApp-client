@@ -5,8 +5,7 @@ import { useSelector } from "react-redux";
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
     const { userName: paramUserName } = useParams();
-    const userName = paramUserName || propUserName;
-
+    const userName = propUserName || paramUserName; // <-- always have a valid username
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState(null);
@@ -32,9 +31,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
                 const response = await fetch(
                     `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                        headers: { Authorization: `Bearer ${token}` },
                     }
                 );
 
@@ -77,12 +74,12 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
                 Email: formData.Email,
                 Birthday: formData.Birthday,
             };
-            if (formData.Password && formData.Password.trim() !== "") {
+            if (formData.Password?.trim()) {
                 payload.Password = formData.Password;
             }
 
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
                 {
                     method: "PUT",
                     headers: {
@@ -106,7 +103,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
             if (onUserUpdate) onUserUpdate(updatedUser);
             localStorage.setItem("user", JSON.stringify(updatedUser));
 
-            if (updatedUser.Username !== userName) {
+            if (updatedUser.Username !== userData.Username) {
                 navigate(`/users/${updatedUser.Username}`, { replace: true });
             }
         } catch (err) {
@@ -119,12 +116,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
         try {
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
                 {
                     method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
@@ -146,12 +141,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
         try {
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}/favorites/${movieId}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
                 {
                     method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
@@ -172,9 +165,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     if (error) return <div style={{ color: "red" }}>{error}</div>;
     if (!userData) return null;
 
-    const favoriteMovies = movies.filter((m) =>
-        userData.FavoriteMovies?.includes(m._id)
-    );
+    const favoriteMovies = movies.filter((m) => userData.FavoriteMovies?.includes(m._id));
 
     const filteredFavorites = favoriteMovies.filter((movie) => {
         const matchesGenre = filter.genre ? movie.genre === filter.genre : false;
