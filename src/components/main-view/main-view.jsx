@@ -14,6 +14,7 @@ import { NavigationBar } from "../navigation-bar/navigation-bar";
 export const MainView = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const storedToken = localStorage.getItem("token");
+
   const [user, setUser] = useState(storedUser || null);
   const [token, setToken] = useState(storedToken || null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,15 +53,17 @@ export const MainView = () => {
     movie.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.clear();
+  };
+
   return (
     <BrowserRouter>
       <NavigationBar
         user={user}
-        onLoggedOut={() => {
-          setUser(null);
-          setToken(null);
-          localStorage.clear();
-        }}
+        onLoggedOut={handleLogout}
         movies={movies}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -76,11 +79,11 @@ export const MainView = () => {
               ) : (
                 <Col md={5}>
                   <LoginView
-                    onLoggedIn={(user, token) => {
-                      setUser(user);
-                      setToken(token);
-                      localStorage.setItem("user", JSON.stringify(user));
-                      localStorage.setItem("token", token);
+                    onLoggedIn={(loggedUser, authToken) => {
+                      setUser(loggedUser);
+                      setToken(authToken);
+                      localStorage.setItem("user", JSON.stringify(loggedUser));
+                      localStorage.setItem("token", authToken);
                     }}
                   />
                 </Col>
@@ -104,13 +107,12 @@ export const MainView = () => {
                     token={token}
                     movies={movies}
                     MovieCard={MovieCard}
-                    userName={user?.Username}
-                    onLogout={() => {
-                      setUser(null);
-                      setToken(null);
-                      localStorage.clear();
+                    user={user}
+                    onUserUpdate={(updatedUser) => {
+                      setUser(updatedUser);
+                      localStorage.setItem("user", JSON.stringify(updatedUser));
                     }}
-                    onUserUpdate={(updatedUser) => setUser(updatedUser)}
+                    onLogout={handleLogout}
                   />
                 </Col>
               )
@@ -147,7 +149,10 @@ export const MainView = () => {
                         movie={movie}
                         token={token}
                         userName={user?.Username}
-                        onAddFavorite={(updatedUser) => setUser(updatedUser)}
+                        onAddFavorite={(updatedUser) => {
+                          setUser(updatedUser);
+                          localStorage.setItem("user", JSON.stringify(updatedUser));
+                        }}
                       />
                     </Col>
                   ))}
@@ -156,21 +161,6 @@ export const MainView = () => {
             }
           />
         </Routes>
-
-        {user && (
-          <Col xs={12} className="text-center my-3">
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                setUser(null);
-                setToken(null);
-                localStorage.clear();
-              }}
-            >
-              Logout
-            </button>
-          </Col>
-        )}
       </Row>
     </BrowserRouter>
   );
