@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName }) => {
   const navigate = useNavigate();
+
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     Username: "",
@@ -15,18 +16,19 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+
   const filter = useSelector((state) => state.movies.filter);
 
-  // Fetch user info from session user
+  // Fetch full user info once token & username prop are ready
   useEffect(() => {
-    if (!token || !user?.Username) return;
+    if (!token || !userName) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
@@ -47,7 +49,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
     };
 
     fetchUser();
-  }, [token, user]);
+  }, [token, userName]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -90,14 +92,12 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
 
-      // Update parent session & localStorage immediately
-      onUserUpdate(updatedUser);
+      // Update parent MainView and localStorage immediately
+      onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Navigate to updated username URL
-      if (updatedUser.Username !== userData.Username) {
-        navigate(`/users/${updatedUser.Username}`, { replace: true });
-      }
+      // Navigate to updated username immediately
+      navigate(`/users/${updatedUser.Username}`, { replace: true });
     } catch (err) {
       setError(err.message);
     }
@@ -139,7 +139,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
       const updatedUser = await response.json();
       setUserData(updatedUser);
       setMessage("Movie removed from favorites.");
-      onUserUpdate(updatedUser);
+      onUserUpdate?.(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (err) {
       setError(err.message);
     }
