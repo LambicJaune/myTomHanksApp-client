@@ -107,9 +107,8 @@ export const MainView = () => {
                                         token={token}
                                         movies={movies}
                                         MovieCard={MovieCard}
-                                        user={user} // Pass full user object
                                         onUserUpdate={(updatedUser) => {
-                                            setUser(updatedUser);
+                                            setUser(updatedUser); // update session
                                             localStorage.setItem("user", JSON.stringify(updatedUser));
                                         }}
                                         onLogout={handleLogout}
@@ -118,6 +117,7 @@ export const MainView = () => {
                             )
                         }
                     />
+
 
 
                     <Route
