@@ -1,43 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
-  const { userName: paramUserName } = useParams();
-  const userName = propUserName || paramUserName; // stable, never undefined
+const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate }) => {
   const navigate = useNavigate();
 
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(user || null);
   const [formData, setFormData] = useState({
     Username: "",
     Password: "",
     Email: "",
     Birthday: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const filter = useSelector((state) => state.movies.filter);
 
+  // Always fetch latest user info
   useEffect(() => {
-    if (!token || !userName) return;
+    if (!token || !userData?.Username) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
+        if (!response.ok) throw new Error("Failed to fetch user info");
 
         const data = await response.json();
         setUserData(data);
@@ -47,6 +43,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
           Email: data.Email,
           Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
         });
+
+        if (onUserUpdate) onUserUpdate(data);
       } catch (err) {
         setError(err.message);
       }
@@ -54,13 +52,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     };
 
     fetchUser();
-  }, [token, userName]);
+  }, [token, userData?.Username]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleUpdate = async (e) => {
@@ -74,13 +69,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
         Email: formData.Email,
         Birthday: formData.Birthday,
       };
-      if (formData.Password && formData.Password.trim() !== "") {
-        payload.Password = formData.Password;
-      }
+      if (formData.Password?.trim()) payload.Password = formData.Password;
 
-      // Use stable userName for the fetch URL
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         {
           method: "PUT",
           headers: {
@@ -100,12 +92,10 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
       setUserData(updatedUser);
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
-
-      if (onUserUpdate) onUserUpdate(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
+      if (onUserUpdate) onUserUpdate(updatedUser);
 
-      // Navigate to the new username if it changed
-      if (updatedUser.Username !== userName) {
+      if (updatedUser.Username !== userData.Username) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
     } catch (err) {
@@ -118,11 +108,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (!response.ok) {
@@ -143,16 +130,11 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
     try {
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}/favorites/${movieId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to remove movie from favorites");
-      }
+      if (!response.ok) throw new Error("Failed to remove movie from favorites");
 
       const updatedUser = await response.json();
       setUserData(updatedUser);
@@ -175,6 +157,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     if (!filter.genre && !filter.director) return true;
     return matchesGenre || matchesDirector;
   });
+
+  const userName = userData?.Username; // always safe
 
   return (
     <Container style={{ maxWidth: "960px" }}>
@@ -227,7 +211,9 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
           />
         </Form.Label>
         <br />
-        <Button type="submit" variant="primary">Update Profile</Button>
+        <Button type="submit" variant="primary">
+          Update Profile
+        </Button>
       </Form>
 
       <hr />
