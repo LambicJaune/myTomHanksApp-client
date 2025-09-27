@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
     const { userName: paramUserName } = useParams();
+    const userName = paramUserName || propUserName;
+
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState(null);
@@ -19,9 +21,6 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     const [message, setMessage] = useState(null);
 
     const filter = useSelector((state) => state.movies.filter);
-
-    // ✅ Use param on first load, but once userData is set, prefer that
-    const userName = userData?.Username || paramUserName || propUserName;
 
     useEffect(() => {
         if (!token || !userName) return;
@@ -83,7 +82,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
             }
 
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
                 {
                     method: "PUT",
                     headers: {
@@ -107,7 +106,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
             if (onUserUpdate) onUserUpdate(updatedUser);
             localStorage.setItem("user", JSON.stringify(updatedUser));
 
-            if (updatedUser.Username !== userData.Username) {
+            if (updatedUser.Username !== userName) {
                 navigate(`/users/${updatedUser.Username}`, { replace: true });
             }
         } catch (err) {
@@ -120,7 +119,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
         try {
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -147,7 +146,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
         try {
             const response = await fetch(
-                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
+                `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}/favorites/${movieId}`,
                 {
                     method: "DELETE",
                     headers: {
