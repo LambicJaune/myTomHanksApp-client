@@ -1,125 +1,101 @@
-# myTomHanksApp
+# myTomHanksApp-client
+[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/LambicJaune/myTomHanksApp-client)
 
-## 📽️ About the Project
+This repository contains the client-side application for **myTomHanksApp**, a web app dedicated to the filmography of Tom Hanks. It is a single-page application built with React that communicates with a separate backend movie API.
 
-**myTomHanksApp** is a full-stack movie web application that allows users to browse and explore movies featuring Tom Hanks. It consists of:
+## Features
 
-- A **RESTful backend API** built with Node.js, Express, and MongoDB.
-- A **React-based frontend client** that connects to the API and provides a rich, responsive user interface.
-- Features include user registration, login, secure token-based authentication, movie filtering, favorites management, and user profile updates.
+-   **User Authentication**: Secure sign-up and login functionality.
+-   **Browse Movies**: View a complete list of Tom Hanks movies fetched from the API.
+-   **Search & Filter**:
+    -   Search for movies by title.
+    -   Filter the movie list by genre or director (mutually exclusive).
+-   **Movie Details**: Click on any movie to see a detailed view with its genre, director, and poster.
+-   **User Profiles**:
+    -   View and update your personal user information (username, email, birthday).
+    -   Manage a list of your favorite movies (add/remove).
+    -   Deregister your account.
+-   **Responsive Design**: The user interface is built with React-Bootstrap and is optimized for both desktop and mobile devices.
+-   **State management** : Using Redux Toolkit
+-   **Token-based authentication and protected routes**
+-   **View movie and director details (TBA)**
 
----
+## Tech Stack
 
-## 🔧 Backend (API)
+-   **Framework**: React 19
+-   **Routing**: React Router
+-   **State Management**: Redux Toolkit
+-   **UI Library**: React-Bootstrap & Bootstrap 5
+-   **Styling**: SASS (via Parcel transformer)
+-   **Bundler**: Parcel
 
-### Features
+## Getting Started
 
-- User registration & authentication using JWT
-- Token-protected routes
-- Get movies by title, genre, or director
-- View detailed director information
-- Add/remove favorite movies
-- Create, update, and delete user accounts
+To run this project locally, you will need Node.js and npm installed.
 
-### Tech Stack
+### Prerequisites
 
-- Node.js  
-- Express  
-- MongoDB + Mongoose  
-- Passport.js (JWT Authentication)  
-- bcrypt (Password Hashing)  
-- express-validator  
-- CORS  
-- Morgan (Logging)
+This client application requires the corresponding backend API to be running. You can find the backend repository here: [movie_api](https://github.com/LambicJaune/movie_api.git). Please follow the setup instructions in that repository first. The client is configured to connect to the deployed Heroku API at `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/`.
 
-### Installation
+### Installation & Launch
 
-1. **Clone the repository**:
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/LambicJaune/myTomHanksApp-client.git
+    ```
 
-   ```bash
-   git clone https://github.com/LambicJaune/movie_api.git
-   cd movie_api
+2.  **Navigate to the project directory:**
+    ```sh
+    cd myTomHanksApp-client
+    ```
 
-### Install dependencies through the terminal:
+3.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
 
-npm install
+4.  **Start the development server:**
+    ```sh
+    npm start
+    ```
+    The application will automatically open in your browser, typically at `http://localhost:1234`.
 
-### Database Setup (MongoDB Atlas)
+## Project Structure
 
-1. Go to MongoDB Atlas.
+The application's source code is located in the `src/` directory and is organized into components and Redux state management files.
 
-2. Create a cluster and a new database (e.g., TomHanksAppDB).
+### Key Components
 
-3. Add a database user and whitelist your IP address (or allow 0.0.0.0/0).
+-   `MainView`: The central component that manages routing and renders different views based on the URL and user authentication status.
+-   `NavigationBar`: Provides navigation links, user authentication buttons, search functionality, and dropdown filters for genre and director.
+-   `MovieCard`: A reusable card component to display a summary of a movie in the main list.
+-   `MovieView`: A detailed view of a single movie, shown when a user clicks on a `MovieCard`.
+-   `LoginView` & `SignupView`: Forms for user authentication and registration.
+-   `ProfileView`: A dedicated view for users to manage their profile information and favorite movies.
 
-4. Create your collections (e.g., movies, users).
+### State Management (Redux)
 
-5. Add a .env file in your project root: MONGO_URI=mongodb+srv://<username>:<password>@<cluster-address>/<database-name>?retryWrites=true&w=majority&appName=<your-app-name>
+The application uses Redux Toolkit for efficient state management.
 
-### Running the Backend :
+-   **`store.js`**: Configures the main Redux store.
+-   **`moviesSlice.js`**: Defines the state and reducers for managing the movie list and filters. It includes actions for:
+    -   `setMovies`: To store the list of movies fetched from the API.
+    -   `setGenreFilter` / `setDirectorFilter`: To apply a filter to the movie list.
+    -   `clearFilter`: To remove any active filters.
 
-npm start (Or, for development: npx nodemon index.js)
+## Deployment
 
-### The API runs locally at:
+This project is configured for deployment on Netlify. The `netlify.toml` file includes a redirect rule to ensure that React Router handles all client-side routing correctly in a single-page application environment.
 
-http://localhost:8080
 
-Use Postman or curl to test your endpoints.
+[[redirects]]
+  from = "/*"
+  to = "/"
+  status = 200
 
-🎬 Frontend (Client)
 
-The client is a React Single Page Application (SPA) that allows users to log in, browse movies, apply filters (genre or director), search a movie by title, manage favorites, and update/delete their profile.
+--------------------------
 
-### Features:
-
--Responsive design using React-Bootstrap
-
--Search movies by title
-
--Filter by genre or director (mutually exclusive)
-
--Token-based authentication and protected routes
-
--View movie and director details
-
--Add/remove favorites
-
--Update user profile and deregister
-
--State management using Redux Toolkit
-
-### Tech Stack:
-
-React 19
-
-Redux Toolkit
-
-React Router DOM
-
-React-Bootstrap + Bootstrap 5
-
-PropTypes
-
-Parcel (for bundling)
-
-SASS (via Parcel transformer)
-
-### Installation :
-
-1. Nevigate to the client's folder :
-
-cd mythomhanksapp-client
-
-2. Install dependencies :
-
-npm install
-
-### Running the Frontend :
-
-npm start
-
-This runs the app on:
-http://localhost:1234 (default Parcel port)
 
 Author & License
 Author: LambicJaune (Gael Giraud)

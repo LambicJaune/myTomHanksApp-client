@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   const { userName } = useParams();
+  const navigate = useNavigate();
+
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     Username: "",
@@ -68,15 +70,25 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
     setMessage(null);
 
     try {
+      // Build payload dynamically, skip empty password
+      const payload = {
+        Username: formData.Username,
+        Email: formData.Email,
+        Birthday: formData.Birthday,
+      };
+      if (formData.Password && formData.Password.trim() !== "") {
+        payload.Password = formData.Password;
+      }
+
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -89,7 +101,14 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
       setUserData(updatedUser);
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
+
       if (onUserUpdate) onUserUpdate(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // Redirect if username changed
+      if (updatedUser.Username !== userData.Username) {
+        navigate(`/users/${updatedUser.Username}`, { replace: true });
+      }
     } catch (err) {
       setError(err.message);
     }
