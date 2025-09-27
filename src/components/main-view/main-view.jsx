@@ -24,9 +24,9 @@ export const MainView = () => {
     const genre = useSelector((state) => state.movies.filter.genre);
     const director = useSelector((state) => state.movies.filter.director);
 
+    // Fetch movies
     useEffect(() => {
         if (!token) return;
-
         fetch("https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/movies", {
             headers: { Authorization: `Bearer ${token}` },
         })
@@ -107,7 +107,7 @@ export const MainView = () => {
                                         token={token}
                                         movies={movies}
                                         MovieCard={MovieCard}
-                                        userName={user.Username} 
+                                        user={user} // full user object
                                         onUserUpdate={(updatedUser) => {
                                             setUser(updatedUser);
                                             localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -118,7 +118,6 @@ export const MainView = () => {
                             )
                         }
                     />
-
 
                     <Route
                         path="/:id"
