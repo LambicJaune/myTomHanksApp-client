@@ -16,7 +16,6 @@ export const MainView = () => {
   const storedToken = localStorage.getItem("token");
   const [user, setUser] = useState(storedUser || null);
   const [token, setToken] = useState(storedToken || null);
-
   const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useDispatch();
@@ -30,7 +29,7 @@ export const MainView = () => {
     fetch("https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/movies", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
         const moviesFromApi = data.map((doc) => ({
           _id: doc._id,
@@ -91,9 +90,7 @@ export const MainView = () => {
 
           <Route
             path="/signup"
-            element={
-              user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>
-            }
+            element={user ? <Navigate to="/" /> : <Col md={5}><SignupView /></Col>}
           />
 
           <Route
@@ -107,16 +104,13 @@ export const MainView = () => {
                     token={token}
                     movies={movies}
                     MovieCard={MovieCard}
-                    user={user} // pass full user object
+                    userName={user?.Username}
                     onLogout={() => {
                       setUser(null);
                       setToken(null);
                       localStorage.clear();
                     }}
-                    onUserUpdate={(updatedUser) => {
-                      setUser(updatedUser);
-                      localStorage.setItem("user", JSON.stringify(updatedUser));
-                    }}
+                    onUserUpdate={(updatedUser) => setUser(updatedUser)}
                   />
                 </Col>
               )
@@ -148,15 +142,12 @@ export const MainView = () => {
               ) : (
                 <>
                   {searchedMovies.map((movie) => (
-                    <Col className="mb-4" key={movie._id} xs={12} sm={6} md={4} lg={3}>
+                    <Col key={movie._id} xs={12} sm={6} md={4} lg={3} className="mb-4">
                       <MovieCard
                         movie={movie}
                         token={token}
                         userName={user?.Username}
-                        onAddFavorite={(updatedUser) => {
-                          setUser(updatedUser);
-                          localStorage.setItem("user", JSON.stringify(updatedUser));
-                        }}
+                        onAddFavorite={(updatedUser) => setUser(updatedUser)}
                       />
                     </Col>
                   ))}
