@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user }) => {
+  const { userName: paramUserName } = useParams(); // derive username from URL
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
@@ -19,16 +20,16 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
 
   const filter = useSelector((state) => state.movies.filter);
 
-  // Fetch full user info once token & username prop are ready
+  // Fetch full user info once token & username param are ready
   useEffect(() => {
-    if (!token || !userName) return;
+    if (!token || !paramUserName) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${paramUserName}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
@@ -49,7 +50,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
     };
 
     fetchUser();
-  }, [token, userName]);
+  }, [token, paramUserName]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -92,12 +93,12 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userNam
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
 
-      // Update parent MainView and localStorage immediately
+      // Update MainView session and localStorage
       onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Navigate to updated username if it changed
-      if (updatedUser.Username !== userData.Username) {
+      // Navigate to updated username if changed
+      if (updatedUser.Username !== paramUserName) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
     } catch (err) {
