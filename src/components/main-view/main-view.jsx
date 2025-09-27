@@ -104,14 +104,13 @@ export const MainView = () => {
                             ) : (
                                 <Col md={9}>
                                     <ProfileView
-                                        key={user.Username} // ✅ forces re-mount when username changes
                                         token={token}
                                         movies={movies}
                                         MovieCard={MovieCard}
-                                        user={user}
                                         onUserUpdate={(updatedUser) => {
                                             setUser(updatedUser);
                                             localStorage.setItem("user", JSON.stringify(updatedUser));
+                                            localStorage.setItem("username", updatedUser.Username);
                                         }}
                                         onLogout={handleLogout}
                                     />
@@ -119,6 +118,7 @@ export const MainView = () => {
                             )
                         }
                     />
+
 
 
                     <Route
