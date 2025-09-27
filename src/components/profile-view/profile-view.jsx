@@ -1,36 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, userName: propUserName }) => {
+  const { userName: paramUserName } = useParams();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(user || null);
+
+  const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
-    Username: user?.Username || "",
+    Username: "",
     Password: "",
-    Email: user?.Email || "",
-    Birthday: user?.Birthday ? user.Birthday.substring(0, 10) : "",
+    Email: "",
+    Birthday: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const filter = useSelector((state) => state.movies.filter);
 
-  // Fetch fresh user data on mount or when user changes
+  // Initialize userData from prop or param on first render
   useEffect(() => {
-    if (!token || !user?.Username) return;
+    if (!userData && (propUserName || paramUserName)) {
+      setUserData({ Username: propUserName || paramUserName });
+    }
+  }, [propUserName, paramUserName, userData]);
+
+  // Fetch full user info once token & userData.Username are ready
+  useEffect(() => {
+    const userNameForApi = userData?.Username;
+    if (!token || !userNameForApi) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${user.Username}`,
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
+
         const data = await response.json();
         setUserData(data);
         setFormData({
@@ -39,14 +50,15 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
           Email: data.Email,
           Birthday: data.Birthday ? data.Birthday.substring(0, 10) : "",
         });
-        if (onUserUpdate) onUserUpdate(data);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchUser();
-  }, [token, user?.Username]);
+  }, [token, userData?.Username]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -57,6 +69,9 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
     setError(null);
     setMessage(null);
 
+    const userNameForApi = userData?.Username;
+    if (!userNameForApi) return;
+
     try {
       const payload = {
         Username: formData.Username,
@@ -66,7 +81,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
       if (formData.Password?.trim()) payload.Password = formData.Password;
 
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
         {
           method: "PUT",
           headers: {
@@ -83,18 +98,13 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
       }
 
       const updatedUser = await response.json();
-
-      // Update local state and propagate to MainView
       setUserData(updatedUser);
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
-      if (onUserUpdate) onUserUpdate(updatedUser);
-
-      // Persist new username/token in localStorage to maintain session
+      onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // If username changed, navigate to new URL
-      if (updatedUser.Username !== userData.Username) {
+      if (updatedUser.Username !== userNameForApi) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
     } catch (err) {
@@ -106,14 +116,19 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
     if (!window.confirm("Are you sure you want to delete your account?")) return;
 
     try {
+      const userNameForApi = userData?.Username;
+      if (!userNameForApi) return;
+
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
+
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.message || "Failed to delete user");
       }
+
       alert("Account deleted successfully.");
       onLogout();
     } catch (err) {
@@ -124,17 +139,22 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
   const handleRemoveFavorite = async (movieId) => {
     setError(null);
     setMessage(null);
+
     try {
+      const userNameForApi = userData?.Username;
+      if (!userNameForApi) return;
+
       const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
+        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userNameForApi}/favorites/${movieId}`,
         { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
       );
+
       if (!response.ok) throw new Error("Failed to remove movie from favorites");
+
       const updatedUser = await response.json();
       setUserData(updatedUser);
       setMessage("Movie removed from favorites.");
-      if (onUserUpdate) onUserUpdate(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      onUserUpdate?.(updatedUser);
     } catch (err) {
       setError(err.message);
     }
@@ -160,15 +180,9 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
       <Form onSubmit={handleUpdate}>
         <Form.Label>
           Username:
-          <Form.Control
-            name="Username"
-            value={formData.Username}
-            onChange={handleChange}
-            required
-          />
+          <Form.Control name="Username" value={formData.Username} onChange={handleChange} required />
         </Form.Label>
         <br />
-
         <Form.Label>
           Password (leave blank to keep current):
           <Form.Control
@@ -180,34 +194,20 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
           />
         </Form.Label>
         <br />
-
         <Form.Label>
           Email:
-          <Form.Control
-            type="email"
-            name="Email"
-            value={formData.Email}
-            onChange={handleChange}
-            required
-          />
+          <Form.Control type="email" name="Email" value={formData.Email} onChange={handleChange} required />
         </Form.Label>
         <br />
-
         <Form.Label>
           Date of Birth:
-          <Form.Control
-            type="date"
-            name="Birthday"
-            value={formData.Birthday}
-            onChange={handleChange}
-          />
+          <Form.Control type="date" name="Birthday" value={formData.Birthday} onChange={handleChange} />
         </Form.Label>
         <br />
         <Button type="submit" variant="primary">Update Profile</Button>
       </Form>
 
       <hr />
-
       <h3>Your Favorite Movies</h3>
       <br />
       {filteredFavorites.length === 0 ? (
@@ -220,7 +220,17 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, user, onUserUpdate })
                 <MovieCard movie={movie} />
                 <Button
                   onClick={() => handleRemoveFavorite(movie._id)}
-                  style={{ position: "absolute", top: "5px", right: "5px", backgroundColor: "red", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", padding: "2px 6px" }}
+                  style={{
+                    position: "absolute",
+                    top: "5px",
+                    right: "5px",
+                    backgroundColor: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    padding: "2px 6px",
+                  }}
                   aria-label={`Remove ${movie.title} from favorites`}
                 >
                   Remove from list
