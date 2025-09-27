@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user }) => {
+const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
+  const { userName: paramUserName } = useParams();
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
@@ -19,18 +20,16 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
 
   const filter = useSelector((state) => state.movies.filter);
 
-  const userName = user?.Username;
-
-  // Fetch full user info when token or username changes
+  // Fetch user info based on route param
   useEffect(() => {
-    if (!token || !userName) return;
+    if (!token || !paramUserName) return;
 
     const fetchUser = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(
-          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userName}`,
+          `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${paramUserName}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
@@ -51,7 +50,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
     };
 
     fetchUser();
-  }, [token, userName]);
+  }, [token, paramUserName]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -94,56 +93,14 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
       setFormData((prev) => ({ ...prev, Password: "" }));
       setMessage("Profile updated successfully!");
 
-      // Update parent MainView and localStorage
+      // Update MainView and session
       onUserUpdate?.(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // Navigate to new username if changed
-      if (updatedUser.Username !== userName) {
+      // If username changed, navigate to new URL
+      if (updatedUser.Username !== paramUserName) {
         navigate(`/users/${updatedUser.Username}`, { replace: true });
       }
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
-
-    try {
-      const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}`,
-        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Failed to delete user");
-      }
-
-      alert("Account deleted successfully.");
-      onLogout();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleRemoveFavorite = async (movieId) => {
-    setError(null);
-    setMessage(null);
-
-    try {
-      const response = await fetch(
-        `https://mytomhanksapp-3bff0bf9ef19.herokuapp.com/users/${userData.Username}/favorites/${movieId}`,
-        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (!response.ok) throw new Error("Failed to remove movie from favorites");
-
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      setMessage("Movie removed from favorites.");
-      onUserUpdate?.(updatedUser);
     } catch (err) {
       setError(err.message);
     }
@@ -207,33 +164,11 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate, user })
             <Col xs={12} sm={6} md={4} key={movie._id}>
               <div style={{ position: "relative", height: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
                 <MovieCard movie={movie} />
-                <Button
-                  onClick={() => handleRemoveFavorite(movie._id)}
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    right: "5px",
-                    backgroundColor: "red",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    padding: "2px 6px",
-                  }}
-                  aria-label={`Remove ${movie.title} from favorites`}
-                >
-                  Remove from list
-                </Button>
               </div>
             </Col>
           ))}
         </Row>
       )}
-
-      <br />
-      <hr />
-      <br />
-      <Button variant="danger" onClick={handleDelete}>Deregister (Delete Account)</Button>
     </Container>
   );
 };
