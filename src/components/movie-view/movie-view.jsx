@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 import "./movie-view.scss";
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * Displays detailed information for a single movie.
+ *
+ * Finds the movie by ID from props, shows its details, and
+ * provides a back button to return to the movie list.
+ */
 export const MovieView = ({ movies, setSearchTerm }) => {
     const { id } = useParams();
 

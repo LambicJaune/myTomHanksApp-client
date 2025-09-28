@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 
+/**
+ * ProfileView component
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.token - JWT authentication token
+ * @param {Function} props.onLogout - Callback function triggered after logout or account deletion
+ * @param {Array<Object>} props.movies - List of movies available in the application
+ * @param {React.ComponentType} props.MovieCard - Component used to render movie cards
+ * @param {Function} props.onUserUpdate - Callback function triggered after user profile update
+ * @returns {JSX.Element} Renders the user's profile page
+ */
 const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   const navigate = useNavigate();
 
@@ -16,8 +28,15 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
-  // Load user data from localStorage & API
-  const loadUser = async () => {
+/**
+   * Load the current user data from the API.
+   * Fetches using the username and token stored in localStorage.
+   *
+   * @async
+   * @function loadUser
+   * @returns {Promise<void>} Resolves when the user data has been loaded
+   */
+    const loadUser = async () => {
     const storedToken = localStorage.getItem("token");
     const storedUsername = localStorage.getItem("username");
     if (!storedToken || !storedUsername) return;
@@ -46,10 +65,27 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
     loadUser();
   }, []);
 
+  /**
+   * Handle changes to form input fields and update component state.
+   *
+   * @function handleChange
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
+   * @returns {void}
+   */
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  
+  /**
+   * Handle profile update submission.
+   * Sends updated data to the backend, updates localStorage, and updates the route.
+   *
+   * @async
+   * @function handleUpdate
+   * @param {React.FormEvent<HTMLFormElement>} e - Form submission event
+   * @returns {Promise<void>}
+   */
   const handleUpdate = async (e) => {
     e.preventDefault();
     setError(null);
@@ -101,6 +137,14 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
     }
   };
 
+  /**
+   * Handle user account deletion.
+   * Sends a DELETE request to the backend, clears localStorage, and logs the user out.
+   *
+   * @async
+   * @function handleDelete
+   * @returns {Promise<void>}
+   */
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete your account?")) return;
 

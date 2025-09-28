@@ -16,7 +16,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // Import statement indicating `./index.scss` needs to be bundled
 import "./index.scss";
 
-// Main component 
+/**
+ * Main app component that wraps MainView inside a Bootstrap Container.
+ */
 const App = () => {
     return (
         <Container>
@@ -25,11 +27,13 @@ const App = () => {
     );
 };
 
-// Finds the root of your app
+// Finds the root element in the DOM and mounts the app
 const container = document.getElementById('root');
 const root = createRoot(container);
 
-// Tells React to render your app in the root DOM element with Redux provider
+/**
+ * Renders the App inside Redux <Provider> so all components can access the store.
+ */
 root.render(
     <Provider store={store}>
         <App />
