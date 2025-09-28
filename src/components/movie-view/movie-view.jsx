@@ -4,10 +4,15 @@ import "./movie-view.scss";
 import { useNavigate } from 'react-router-dom';
 
 /**
- * Displays detailed information for a single movie.
+ * Displays detailed information for a single movie, including
+ * its title, genre, director, and poster image. Provides a back
+ * button to return to the main movie list.
  *
- * Finds the movie by ID from props, shows its details, and
- * provides a back button to return to the movie list.
+ * @component
+ * @param {Object} props - React props
+ * @param {Array<{_id: string, title: string, imagePath: string, genre: string, director: string}>} props.movies - Array of movies to search
+ * @param {function(string):void} props.setSearchTerm - Function to update the current search term
+ * @returns {ReactElement} A view showing details of a selected movie
  */
 export const MovieView = ({ movies, setSearchTerm }) => {
     const { id } = useParams();
@@ -15,6 +20,13 @@ export const MovieView = ({ movies, setSearchTerm }) => {
     const movie = movies.find((m) => m._id === id);
 
     const navigate = useNavigate();
+
+    /**
+   * Navigates back to the main movie list.
+   *
+   * @function handleBack
+   * @returns {void}
+   */
     const handleBack = () => {
         navigate("/"); // go back to main page (movie list)
     };
