@@ -1,4 +1,32 @@
-import React, { useEffect, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/profile-view/profile-view.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/profile-view/profile-view.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col, Row, Container } from "react-bootstrap";
 
@@ -8,8 +36,8 @@ import { Form, Button, Col, Row, Container } from "react-bootstrap";
  * @param {Object} props - Component props
  * @param {string} props.token - JWT authentication token
  * @param {function():void} props.onLogout - Callback triggered after logout or account deletion
- * @param {Array<{_id: string, title: string, imagePath: string, director: string, genre: string}>} props.movies - List of movies in the application
- * @param {React.ComponentType<any>} props.MovieCard - Component used to render movie cards
+ * @param {Array&lt;{_id: string, title: string, imagePath: string, director: string, genre: string}>} props.movies - List of movies in the application
+ * @param {React.ComponentType&lt;any>} props.MovieCard - Component used to render movie cards
  * @param {function(Object):void} props.onUserUpdate - Callback triggered after a successful profile update
  * @returns {ReactElement} The user's profile page
  */
@@ -32,7 +60,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
        *
        * @async
        * @function loadUser
-       * @returns {Promise<void>} Resolves when the user data has been loaded
+       * @returns {Promise&lt;void>} Resolves when the user data has been loaded
        */
     const loadUser = async () => {
         const storedToken = localStorage.getItem("token");
@@ -67,7 +95,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
      * Handle changes to form input fields and update component state.
      *
      * @function handleChange
-     * @param {React.ChangeEvent<HTMLInputElement>} e - Input change event
+     * @param {React.ChangeEvent&lt;HTMLInputElement>} e - Input change event
      * @returns {void}
      */
     const handleChange = (e) => {
@@ -81,8 +109,8 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
      *
      * @async
      * @function handleUpdate
-     * @param {React.FormEvent<HTMLFormElement>} e - Form submission event
-     * @returns {Promise<void>}
+     * @param {React.FormEvent&lt;HTMLFormElement>} e - Form submission event
+     * @returns {Promise&lt;void>}
      */
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -118,7 +146,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
 
             const updatedData = await response.json();
 
-            // Update localStorage & parent state
+            // Update localStorage &amp; parent state
             localStorage.setItem("user", JSON.stringify(updatedData.user));
             localStorage.setItem("username", updatedData.user.Username);
             if (updatedData.token) localStorage.setItem("token", updatedData.token);
@@ -141,7 +169,7 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
      *
      * @async
      * @function handleDelete
-     * @returns {Promise<void>}
+     * @returns {Promise&lt;void>}
      */
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete your account?")) return;
@@ -162,57 +190,80 @@ const ProfileView = ({ token, onLogout, movies, MovieCard, onUserUpdate }) => {
         }
     };
 
-    if (loading) return <div>Loading profile...</div>;
-    if (error) return <div style={{ color: "red" }}>{error}</div>;
+    if (loading) return &lt;div>Loading profile...&lt;/div>;
+    if (error) return &lt;div style={{ color: "red" }}>{error}&lt;/div>;
 
     const favoriteMovies = movies.filter((m) => user.FavoriteMovies?.includes(m._id));
 
     return (
-        <Container style={{ maxWidth: "960px" }}>
-            <h2>Your Profile</h2>
-            {message && <p style={{ color: "green" }}>{message}</p>}
+        &lt;Container style={{ maxWidth: "960px" }}>
+            &lt;h2>Your Profile&lt;/h2>
+            {message &amp;&amp; &lt;p style={{ color: "green" }}>{message}&lt;/p>}
 
-            <Form onSubmit={handleUpdate}>
-                <Form.Label>
+            &lt;Form onSubmit={handleUpdate}>
+                &lt;Form.Label>
                     Username:
-                    <Form.Control name="Username" value={formData.Username} onChange={handleChange} required />
-                </Form.Label>
-                <br />
-                <Form.Label>
+                    &lt;Form.Control name="Username" value={formData.Username} onChange={handleChange} required />
+                &lt;/Form.Label>
+                &lt;br />
+                &lt;Form.Label>
                     Password (leave blank to keep current):
-                    <Form.Control type="password" name="Password" value={formData.Password} onChange={handleChange} placeholder="New password" />
-                </Form.Label>
-                <br />
-                <Form.Label>
+                    &lt;Form.Control type="password" name="Password" value={formData.Password} onChange={handleChange} placeholder="New password" />
+                &lt;/Form.Label>
+                &lt;br />
+                &lt;Form.Label>
                     Email:
-                    <Form.Control type="email" name="Email" value={formData.Email} onChange={handleChange} required />
-                </Form.Label>
-                <br />
-                <Form.Label>
+                    &lt;Form.Control type="email" name="Email" value={formData.Email} onChange={handleChange} required />
+                &lt;/Form.Label>
+                &lt;br />
+                &lt;Form.Label>
                     Date of Birth:
-                    <Form.Control type="date" name="Birthday" value={formData.Birthday} onChange={handleChange} />
-                </Form.Label>
-                <br />
-                <Button type="submit" variant="primary">Update Profile</Button>
-            </Form>
+                    &lt;Form.Control type="date" name="Birthday" value={formData.Birthday} onChange={handleChange} />
+                &lt;/Form.Label>
+                &lt;br />
+                &lt;Button type="submit" variant="primary">Update Profile&lt;/Button>
+            &lt;/Form>
 
-            <hr />
-            <h3>Your Favorite Movies</h3>
-            <Row className="g-4">
+            &lt;hr />
+            &lt;h3>Your Favorite Movies&lt;/h3>
+            &lt;Row className="g-4">
                 {favoriteMovies.map((movie) => (
-                    <Col key={movie._id} xs={12} sm={6} md={4}>
-                        <div style={{ position: "relative", minHeight: "400px", display: "flex", flexDirection: "column" }}>
-                            <MovieCard movie={movie} />
-                        </div>
-                    </Col>
+                    &lt;Col key={movie._id} xs={12} sm={6} md={4}>
+                        &lt;div style={{ position: "relative", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+                            &lt;MovieCard movie={movie} />
+                        &lt;/div>
+                    &lt;/Col>
                 ))}
-            </Row>
+            &lt;/Row>
 
-            <br />
-            <hr />
-            <Button variant="danger" onClick={handleDelete}>Deregister (Delete Account)</Button>
-        </Container>
+            &lt;br />
+            &lt;hr />
+            &lt;Button variant="danger" onClick={handleDelete}>Deregister (Delete Account)&lt;/Button>
+        &lt;/Container>
     );
 };
 
 export default ProfileView;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#LoginView">LoginView</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieView">MovieView</a></li><li><a href="global.html#ProfileView">ProfileView</a></li><li><a href="global.html#SignupView">SignupView</a></li><li><a href="global.html#clearFilter">clearFilter</a></li><li><a href="global.html#handleAddFavorite">handleAddFavorite</a></li><li><a href="global.html#handleBack">handleBack</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#moviesSlice">moviesSlice</a></li><li><a href="global.html#setDirectorFilter">setDirectorFilter</a></li><li><a href="global.html#setGenreFilter">setGenreFilter</a></li><li><a href="global.html#setMovies">setMovies</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#validate">validate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Sep 28 2025 20:44:19 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
