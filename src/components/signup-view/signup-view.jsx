@@ -2,14 +2,25 @@ import { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
+/**
+ * Signup form component.
+ *
+ * Handles input validation, shows errors, and sends new user data
+ * to the backend API to create an account.
+ */
 export const SignupView = () => {
+  // form fields
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
 
+  // validation errors
   const [errors, setErrors] = useState({});
 
+  /**
+   * Validates all input fields before submitting.
+   */
   const validate = () => {
     const newErrors = {};
 
@@ -39,6 +50,10 @@ export const SignupView = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Handles form submission: validates input, sends request to API,
+   * and displays success or server-side validation errors.
+   */
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!validate()) return;
